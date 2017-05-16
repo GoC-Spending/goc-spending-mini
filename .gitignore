@@ -4,3 +4,6 @@ yarn.lock
 
 composer.phar
 vendor
+
+scrapers/contracts
+/composer.lock
