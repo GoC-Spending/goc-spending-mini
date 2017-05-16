@@ -35,17 +35,17 @@ class Configuration {
 	public static $limitContractsPerQuarter = 2;
 
 	public static $departmentsToSkip = [
-		'agr',
-		'sc',
-		'tbs',
-		'fin',
-		'csa',
-		'ic',
-		'infra',
-		'pwgsc',
-		'dnd',
-		'pch',
-		'acoa',
+		// 'agr',
+		// 'sc',
+		// 'tbs',
+		// 'fin',
+		// 'csa',
+		// 'ic',
+		// 'infra',
+		// 'pwgsc',
+		// 'dnd',
+		// 'pch',
+		// 'acoa',
 	];
 
 	// Optionally sleep for a certain number (or fraction) of seconds in-between contract page downloads:
