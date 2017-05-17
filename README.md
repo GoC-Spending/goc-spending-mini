@@ -4,8 +4,8 @@ Work-in-progress code to scrape and then parse contracting data from departments
 
 ## Dependencies 
 
-PHP 5.7+
-Composer, which can be downloaded from <https://getcomposer.org/download/>
+1. PHP 5.7+
+2. Composer, which can be downloaded from <https://getcomposer.org/download/>
 
 ## Install instructions
 
