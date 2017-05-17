@@ -2,6 +2,11 @@
 
 Work-in-progress code to scrape and then parse contracting data from departments' Proactive Disclosure website.
 
+## Dependencies 
+
+PHP 5.7+
+Composer, which can be downloaded from <https://getcomposer.org/download/>
+
 ## Install instructions
 
 1. Clone the repository.
