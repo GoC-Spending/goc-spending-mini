@@ -7,3 +7,7 @@ vendor
 
 scrapers/contracts
 /composer.lock
+
+/scrapers/.DS_Store
+
+/scrapers/test/
