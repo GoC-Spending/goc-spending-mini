@@ -1,5 +1,6 @@
 {
     "require": {
-        "guzzlehttp/guzzle": "~6.0"
+        "guzzlehttp/guzzle": "~6.0",
+        "stil/xpath-selector": "~2.0"
     }
 }
