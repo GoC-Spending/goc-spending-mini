@@ -44,7 +44,7 @@ class Configuration {
 	public static $sleepBetweenDownloads = 0;
 
 	// Optionally force downloading all files, including ones that have been already been downloaded:
-	public static $redownloadExistingFiles = 0;
+	public static $redownloadExistingFiles = 1;
 
 	// Output director for the contract pages (sub-categorized by owner department acronym)
 	public static $outputFolder = 'contracts';
@@ -59,7 +59,16 @@ class DepartmentFetcher2 {
 	public $ownerAcronym;
 	public $indexUrl;
 
-	public $multiPageQuarters = 0;
+	public $activeQuarterPage;
+	public $totalContractsFetched = 0;
+
+
+	public $contractContentSubsetXpath;
+	public $contentSplitParameters = [];
+
+	public $multiPage = 0;
+	public $sleepBetweenDownloads = 0;
+	public $quarterToContractPrefix = '';
 
 	public function __construct($detailsArray = []) {
 
@@ -75,6 +84,18 @@ class DepartmentFetcher2 {
 
 	}
 
+	// By default, just return the same
+	// Child classes can change this, to eg. add a parent URL
+	public function quarterToContractUrlTransform($contractUrl) {
+		return $contractUrl;
+	}
+
+	// In case we want to filter specific URLs out of the list of quarter URLs
+	// Useful for departments (like CBSA) that change their schema halfway through :P 
+	public function filterQuarterUrls($quarterUrls) {
+		return $quarterUrls;
+	}
+
 	public function run() {
 
 		// Run the operation!
@@ -86,6 +107,8 @@ class DepartmentFetcher2 {
 		$indexPage = $this->getPage($this->indexUrl);
 
 		$quarterUrls = $this->getQuarterUrls($indexPage);
+
+		$quarterUrls = $this->filterQuarterUrls($quarterUrls);
 
 		$quartersFetched = 0;
 		foreach ($quarterUrls as $url) {
@@ -116,6 +139,8 @@ class DepartmentFetcher2 {
 			foreach($quarterMultiPages as $url) {
 				echo "D: " . $url . "\n";
 
+				$this->activeQuarterPage = $url;
+
 				$quarterPage = $this->getPage($url);
 
 				$contractUrls = $this->getContractUrls($quarterPage);
@@ -125,6 +150,8 @@ class DepartmentFetcher2 {
 					if(Configuration::$limitContractsPerQuarter && $contractsFetched >= Configuration::$limitContractsPerQuarter) {
 						break;
 					}
+
+					$contractUrl = $this->quarterToContractUrlTransform($contractUrl);
 
 					echo "   " . $contractUrl . "\n";
 
@@ -307,10 +334,62 @@ class InacFetcher extends DepartmentFetcher2 {
 }
 
 
+class CbsaFetcher extends DepartmentFetcher2 {
+
+	public $indexUrl = 'http://www.cbsa-asfc.gc.ca/pd-dp/contracts-contrats/reports-rapports-eng.html';
+	public $baseUrl = 'http://www.cbsa-asfc.gc.ca/';
+	public $ownerAcronym = 'cbsa';
+
+	// From the index page, list all the "quarter" URLs
+	public $indexToQuarterXpath = "//main[@class='container']//ul/li/a/@href";
+
+	public $multiPage = 0;
+
+	public $quarterToContractXpath = "//table[@id='pdcon-table']//td//a/@href";
+	public $quarterToContractPrefix = "";
+
+
+	public $contractContentSubsetXpath = "//div[@id='wb-main-in']";
+
+	// Since the a href tags on the quarter pages just return a path-relative URL, use this to prepend the rest of the URL path
+	public function quarterToContractUrlTransform($contractUrl) {
+		echo "Q: " . $this->activeQuarterPage . "\n";
+
+		$urlArray = explode('/', $this->activeQuarterPage);
+		array_pop($urlArray);
+
+		$urlString = implode('/',$urlArray).'/';
+
+		return $urlString.$contractUrl;
+
+	}
+
+	// Ignore the latest quarter that uses "open.canada.ca" as a link instead.
+	// We'll need to retrieve those from the actual dataset.
+	public function filterQuarterUrls($quarterUrls) {
+
+		// Remove the new entries with "open.canada.ca"
+		$quarterUrls = array_filter($quarterUrls, function($url) {
+			if(strpos($url, 'open.canada.ca') !== false) {
+				return false;
+			}
+			return true;
+		});
+
+		return $quarterUrls;
+	}
+
+}
+
+
 
 // Run the Indigenous and Northern Affairs scraper:
-$inacFetcher = new InacFetcher;
-$inacFetcher->run();
+// $inacFetcher = new InacFetcher;
+// $inacFetcher->run();
+
+// Run the CBSA fetcher
+$cbsaFetcher = new CbsaFetcher;
+$cbsaFetcher->run();
 
 exit();
 
@@ -319,10 +398,32 @@ exit();
 
 // Sample Xpath testing of locally-saved files
 
-$xs = Selector::loadHTMLFile(dirname(__FILE__) . '/' . 'test/test4.html');
+function testIndex($filename) {
 
-$urls = $xs->findAll("//div[@class='center']"); 
+	$xs = Selector::loadHTMLFile($filename);
 
-foreach ($urls as $url) {
-	echo $url . "\n";
+	$urls = $xs->findAll("//main[@class='container']//ul/li/a/@href"); 
+
+	foreach ($urls as $url) {
+		echo $url . "\n";
+	}
+
 }
+
+function testQuarter($filename) {
+
+	$xs = Selector::loadHTMLFile($filename);
+
+	$urls = $xs->findAll("//table[@id='pdcon-table']//td//a/@href"); 
+
+	foreach ($urls as $url) {
+		echo $url . "\n";
+	}
+
+}
+
+
+// testIndex(dirname(__FILE__) . '/' . 'test/test.html');
+testQuarter(dirname(__FILE__) . '/' . 'test/test2.html');
+
+
