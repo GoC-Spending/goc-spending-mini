@@ -11,3 +11,5 @@ scrapers/contracts
 /scrapers/.DS_Store
 
 /scrapers/test/
+
+/scrapers/generated-data/

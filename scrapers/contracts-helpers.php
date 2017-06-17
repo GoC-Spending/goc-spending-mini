@@ -168,6 +168,13 @@ class Helpers {
 
 	}
 
+	public static function cleanLabelText($label) {
+
+		$label = str_replace([':', ' '], '', strtolower($label));
+		return trim($label);
+
+	}
+
 	public static function removeLinebreaks($input) {
 
 		$output = str_replace(["\n", "\r", "\t"], ' ', $input);
