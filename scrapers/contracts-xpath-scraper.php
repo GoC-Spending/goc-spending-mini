@@ -258,6 +258,10 @@ class DepartmentFetcher2 {
 			// Download the page in question:
 			$pageSource = $this->getPage($url);
 
+			// echo "ENCODING IS: ";
+			// $encoding = mb_detect_encoding($pageSource, mb_detect_order(), 1);
+			// echo $encoding . "\n";
+
 			if($pageSource) {
 
 				if($this->contentSplitParameters) {
