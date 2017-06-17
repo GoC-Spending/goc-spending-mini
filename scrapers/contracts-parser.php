@@ -14,7 +14,7 @@
 require('contracts-helpers.php');
 
 // Note that the vendor directory is one level up
-require dirname(__FILE__) . '/../vendor/autoload.php';
+require_once dirname(__FILE__) . '/../vendor/autoload.php';
 use XPathSelector\Selector;
 
 // Go crazy!
@@ -950,7 +950,7 @@ class FileParser {
 			if($labelToKey[$keyNode]) {
 				$values[$labelToKey[$keyNode]] = Helpers::cleanHtmlValue($valueNodes[$index]);
 			}
-			
+
 		}
 
 		// var_dump($values);
@@ -965,6 +965,69 @@ class FileParser {
 
 		// var_dump($values);
 		return $values;
+
+	}
+
+	// Parser for INAC, based on the XPath parser (originally for CBSA above)
+	public static function inac($html) {
+
+		return Helpers::genericXpathParser($html, "//table[@class='widthFull TableBorderBasic']//th", "//table[@class='widthFull TableBorderBasic']//td", ' - ');
+
+	}
+
+	// Parser for CIC
+	public static function cic($html) {
+
+		return Helpers::genericXpathParser($html, "//table//th", "//table//td", ' to ');
+
+	}
+
+	// Parser for HC
+	public static function hc($html) {
+
+		$keyArray = [
+			'vendorName' => 'Vendor Name:',
+			'referenceNumber' => 'Reference Number:',
+			'contractDate' => 'Contract Date:',
+			'description' => 'Description of work:',
+			'contractPeriodStart' => '',
+			'contractPeriodEnd' => '',
+			'contractPeriodRange' => 'Contract Period:',
+			'deliveryDate' => 'Delivery Date:',
+			'originalValue' => 'Original Contract Value',
+			'contractValue' => 'Overall Contract Value',
+			'comments' => 'Comments:',
+		];
+
+		return Helpers::genericXpathParser($html, "//h2", "//p", ' to ', $keyArray);
+
+	}
+
+	// Parser for EC
+	public static function ec($html) {
+
+		return Helpers::genericXpathParser($html, "//table//td[@scope='row']", "//table//td[@class='alignTopLeft']", ' to ');
+
+	}
+
+	// Parser for ESDC
+	public static function esdc($html) {
+
+		$keyArray = [
+			'vendorName' => 'Vendor Name:',
+			'referenceNumber' => 'Reference Number:',
+			'contractDate' => 'Contract Date:',
+			'description' => 'Description of work:',
+			'contractPeriodStart' => '',
+			'contractPeriodEnd' => '',
+			'contractPeriodRange' => 'Contract Period:',
+			'deliveryDate' => 'Delivery Date:',
+			'originalValue' => '',
+			'contractValue' => 'Current Contract Value',
+			'comments' => 'Comments:',
+		];
+
+		return Helpers::genericXpathParser($html, "//table//th", "//table//td", ' to ', $keyArray);
 
 	}
 

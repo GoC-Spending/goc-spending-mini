@@ -8,6 +8,10 @@ if(function_exists('mb_language')) {
 	mb_language('uni'); mb_internal_encoding('UTF-8');
 }
 
+// Note that the vendor directory is one level up
+require_once dirname(__FILE__) . '/../vendor/autoload.php';
+use XPathSelector\Selector;
+
 class Helpers {
 
 	public static function cleanupDate($dateInput, $printErrors = 1) {
@@ -153,6 +157,17 @@ class Helpers {
 		
 	}
 
+	// Thanks to
+	// https://stackoverflow.com/a/6059008/756641
+	// Usage
+	// $str = unicodeString("\u1000");
+	public static function unicodeString($str, $encoding=null) {
+	    if (is_null($encoding)) $encoding = ini_get('mbstring.internal_encoding');
+	    return preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/u', function($match) use ($encoding) {
+	        return mb_convert_encoding(pack('H*', $match[1]), $encoding, 'UTF-16BE');
+	    }, $str);
+	}
+
 	public static function cleanupContractValue($input) {
 
 		$output = str_replace(['$', ','], '', $input);
@@ -163,6 +178,12 @@ class Helpers {
 	public static function cleanHtmlValue($value) {
 
 		$value = str_replace(['&nbsp;', '&amp;', '&AMP;'], [' ', '&', '&'], $value);
+		
+		// Clean up any pesky unicode characters
+		// In the case of \u00A0, it's a non-breaking space:
+		// Not exactly sure why the Â shows up though...
+		$value = str_replace([self::unicodeString("\u00A0"), ' ', 'Â'], '', $value);
+
 		$value = trim(strip_tags($value));
 		return $value;
 
@@ -379,6 +400,78 @@ class Helpers {
 		else {
 			return false;
 		}
+
+	}
+
+
+	// $periodSplitString = " to "
+	public static function genericXpathParser($html, $keyXpath, $valueXpath, $periodSplitString, $keyArray = []) {
+
+		$values = [];
+		$defaultKeyArray = [
+			'vendorName' => 'Vendor Name:',
+			'referenceNumber' => 'Reference Number:',
+			'contractDate' => 'Contract Date:',
+			'description' => 'Description of work:',
+			'contractPeriodStart' => '',
+			'contractPeriodEnd' => '',
+			'contractPeriodRange' => 'Contract Period:',
+			'deliveryDate' => 'Delivery Date:',
+			'originalValue' => '',
+			'contractValue' => 'Contract Value:',
+			'comments' => 'Comments:',
+		];
+
+		if($keyArray == []) {
+			$keyArray = $defaultKeyArray;
+		}
+
+		$cleanKeys = [];
+		foreach($keyArray as $key => $label) {
+			$cleanKeys[$key] = Helpers::cleanLabelText($label);
+		}
+
+		$labelToKey = array_flip($cleanKeys);
+
+		$xs = Selector::loadHTML($html);
+
+		// Extracts the keys (from the <th> tags) in order
+		$keyNodes = $xs->findAll($keyXpath)->map(function ($node, $index) {
+			return (string)$node;
+		});
+
+		// Extracts the values (from the <td> tags) in hopefully the same order:
+		$valueNodes = $xs->findAll($valueXpath)->map(function ($node, $index) {
+			return (string)$node;
+		});
+
+		$keys = [];
+
+		// var_dump($keyNodes);
+		// var_dump($valueNodes);
+
+		foreach($keyNodes as $index => $keyNode) {
+
+			$keyNode = Helpers::cleanLabelText($keyNode);
+
+			if($labelToKey[$keyNode]) {
+				$values[$labelToKey[$keyNode]] = Helpers::cleanHtmlValue($valueNodes[$index]);
+			}
+			
+		}
+
+		// var_dump($values);
+		// exit();
+
+		// Change the "to" range into start and end values:
+		if(isset($values['contractPeriodRange']) && $values['contractPeriodRange']) {
+			$split = explode($periodSplitString, $values['contractPeriodRange']);
+			$values['contractPeriodStart'] = trim($split[0]);
+			$values['contractPeriodEnd'] = trim($split[1]);
+		}
+
+		var_dump($values);
+		return $values;
 
 	}
 
