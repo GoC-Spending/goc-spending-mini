@@ -36,7 +36,7 @@ class Configuration {
 		'sc',
 		'tbs',
 		'acoa',
-		'pch',
+		// 'pch',
 		'dnd',
 	];
 
@@ -1028,6 +1028,18 @@ class FileParser {
 		];
 
 		return Helpers::genericXpathParser($html, "//table//th", "//table//td", ' to ', $keyArray);
+
+	}
+
+	// Parser for PCH
+	public static function pch($html) {
+
+		// To easily take care of the 
+		// Description&nbsp;of&nbsp;Work
+		// label for the description key:
+		$html = str_replace('&nbsp;', ' ', $html);
+
+		return Helpers::genericXpathParser($html, "//table//th", "//table//td", ' to ');
 
 	}
 
