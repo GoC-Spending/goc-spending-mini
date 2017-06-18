@@ -68,7 +68,7 @@ class DepartmentFetcher2 {
 
 	public $multiPage = 0;
 	public $sleepBetweenDownloads = 0;
-	public $quarterToContractPrefix = '';
+
 
 	public function __construct($detailsArray = []) {
 
@@ -87,6 +87,11 @@ class DepartmentFetcher2 {
 	// By default, just return the same
 	// Child classes can change this, to eg. add a parent URL
 	public function quarterToContractUrlTransform($contractUrl) {
+		return $contractUrl;
+	}
+
+	// Similar to the above, but for index pages
+	public function indexToQuarterUrlTransform($contractUrl) {
 		return $contractUrl;
 	}
 
@@ -116,6 +121,8 @@ class DepartmentFetcher2 {
 			if(Configuration::$limitQuarters && $quartersFetched >= Configuration::$limitQuarters) {
 				break;
 			}
+
+			$url = $this->indexToQuarterUrlTransform($url);
 
 			echo $url . "\n";
 
@@ -350,7 +357,6 @@ class CbsaFetcher extends DepartmentFetcher2 {
 	public $multiPage = 0;
 
 	public $quarterToContractXpath = "//table[@id='pdcon-table']//td//a/@href";
-	public $quarterToContractPrefix = "";
 
 
 	public $contractContentSubsetXpath = "//div[@id='wb-main-in']";
@@ -386,14 +392,44 @@ class CbsaFetcher extends DepartmentFetcher2 {
 }
 
 
+class RcmpFetcher extends DepartmentFetcher2 {
+
+	public $indexUrl = 'http://www.rcmp-grc.gc.ca/en/contra/?lst=1';
+	public $baseUrl = 'http://www.rcmp-grc.gc.ca/';
+	public $ownerAcronym = 'rcmp';
+
+	// From the index page, list all the "quarter" URLs
+	public $indexToQuarterXpath = "//main//ul/li/a/@href";
+
+	public $multiPage = 0;
+
+	public $quarterToContractXpath = "//table[@class='wb-tables table table-striped']//td//a/@href";
+
+	public function quarterToContractUrlTransform($contractUrl) {
+		return "http://www.rcmp-grc.gc.ca/en/contra/" . $contractUrl;
+	}
+
+	public function indexToQuarterUrlTransform($url) {
+		return "http://www.rcmp-grc.gc.ca/en/contra/" . $url;
+	}
+
+	public $contractContentSubsetXpath = "//main";
+
+}
+
+
 
 // Run the Indigenous and Northern Affairs scraper:
 // $inacFetcher = new InacFetcher;
 // $inacFetcher->run();
 
 // Run the CBSA fetcher
-$cbsaFetcher = new CbsaFetcher;
-$cbsaFetcher->run();
+// $cbsaFetcher = new CbsaFetcher;
+// $cbsaFetcher->run();
+
+// Run the RCMP fetcher
+$rcmpFetcher = new RcmpFetcher;
+$rcmpFetcher->run();
 
 exit();
 
