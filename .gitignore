@@ -5,11 +5,11 @@ yarn.lock
 composer.phar
 vendor
 
-scrapers/contracts
+src/contracts
 /composer.lock
 
-/scrapers/.DS_Store
+/src/.DS_Store
 
-/scrapers/test/
+/src/test/
 
-/scrapers/generated-data/
+/src/generated-data/
