@@ -16,10 +16,10 @@ You're ready to go!
 
 ## Scraping departments
 
-The scrapers are located in contracts-scraper.php, which can be run with, `php scrapers/contracts-scraper.php`
+The scrapers are located in contracts-scraper.php, which can be run with `composer run-script scrape`
 
 By default, it will download 2 quarters and 2 contract files from each department that has a scraper function.
 
 ## Parsing departments
 
-Parsing data - to extract data from the HTML files downloaded with the scraper - are located in contracts-parser.php, which can be run with, `php scrapers/contracts-parser.php`
+Parsing data - to extract data from the HTML files downloaded with the scraper - are located in contracts-parser.php, which can be run with `composer run-script scrape`
