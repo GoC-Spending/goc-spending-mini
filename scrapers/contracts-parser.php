@@ -980,7 +980,22 @@ class FileParser {
 	// Parser for CIC
 	public static function cic($html) {
 
-		return Helpers::genericXpathParser($html, "//table//th", "//table//td", ' to ');
+		$keyArray = [
+			'vendorName' => 'Vendor Name',
+			'referenceNumber' => 'Reference Number',
+			'contractDate' => 'Contract Date',
+			'description' => 'Description of work',
+			'contractPeriodStart' => '',
+			'contractPeriodEnd' => '',
+			'contractPeriodRange' => 'Contract Period',
+			'deliveryDate' => '',
+			'originalValue' => '',
+			'contractValue' => 'Contract Value',
+			'comments' => 'Comments',
+			'additionalComments' => 'Additional Comments',
+		];
+
+		return Helpers::genericXpathParser($html, "//table//th", "//table//td", ' to ', $keyArray);
 
 	}
 
