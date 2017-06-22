@@ -1020,6 +1020,7 @@ class FileParser {
 			'referenceNumber' => 'Reference Number:',
 			'contractDate' => 'Contract Date:',
 			'description' => 'Description of work:',
+			'detailedDescription' => 'Description (more details):',
 			'contractPeriodStart' => '',
 			'contractPeriodEnd' => '',
 			'contractPeriodRange' => 'Contract Period:',
