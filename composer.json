@@ -2,5 +2,9 @@
     "require": {
         "guzzlehttp/guzzle": "~6.0",
         "stil/xpath-selector": "~2.0"
+    },
+    "scripts": {
+        "scrape": "@php scrapers/contracts-scraper.php",
+        "parse": "@php scrapers/contracts-parser.php"
     }
 }
