@@ -23,3 +23,7 @@ By default, it will download 2 quarters and 2 contract files from each departmen
 ## Parsing departments
 
 Parsing data - to extract data from the HTML files downloaded with the scraper - are located in contracts-parser.php, which can be run with `composer run-script scrape`
+
+## Contributing
+
+To keep track of which departments are scraped/parsed, check out [this spreadsheet](https://docs.google.com/spreadsheets/d/1JVjLmZTrpFYSse0c0ihTHxK6OkHd-zh4P1amASAmAow/edit#gid=0).
