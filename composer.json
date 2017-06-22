@@ -6,5 +6,18 @@
     "scripts": {
         "scrape": "@php scrapers/contracts-scraper.php",
         "parse": "@php scrapers/contracts-parser.php"
+    },
+    "autoload": {
+        "prs-4": {
+            "GoCSpending": [
+                "src/"
+            ],
+            "GoCSpending\\DepartmentHandlers\\": [
+                "src/departmentHandlers/"
+            ],
+            "GoCSpending\\Interfaces\\": [
+                "src/interfaces/"
+            ]
+        }
     }
 }

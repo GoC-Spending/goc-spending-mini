@@ -4,6 +4,9 @@
 // toobs2017@gmail.com and the GoC-Spending team!
 
 // These aren't required in PHP 7+
+
+namespace GoCSpending;
+
 if(function_exists('mb_language')) {
 	mb_language('uni'); mb_internal_encoding('UTF-8');
 }
