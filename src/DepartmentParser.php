@@ -14,6 +14,7 @@ class DepartmentParser {
         'referenceNumber' => '',
         'contractDate' => '',
         'description' => '',
+        'objectCode' => '',
         'contractPeriodStart' => '',
         'contractPeriodEnd' => '',
         'startYear' => '',
@@ -114,6 +115,8 @@ class DepartmentParser {
 
                 $fileValues['ownerAcronym'] = $this->acronym;
 
+                $fileValues['objectCode'] = self::getObjectCodeFromDescription($fileValues['description']);
+
                 // Useful for troubleshooting:
                 $fileValues['sourceFilename'] = $this->acronym . '/' . $file;
 
@@ -209,6 +212,33 @@ class DepartmentParser {
         $source = Helpers::initialSourceTransform($source, $acronym);
 
         return call_user_func( array( 'GoCSpending\\DepartmentHandlers\\' . ucfirst($acronym) . 'Handler', 'parse' ), $source );
+
+    }
+
+    public static function getObjectCodeFromDescription($description) {
+
+        // For example,
+        // 514- Rental of other buildings
+        // 1228 - Computer software
+
+        // The full list of Chart of Accounts Object Codes is available here,
+        // https://www.tpsgc-pwgsc.gc.ca/recgen/pceaf-gwcoa/1718/ressource-resource-eng.html
+        // as the last link on the page.
+
+        $objectCode = '';
+
+        $matches = [];
+        $pattern = '/([0-9]{3,4})/';
+
+        preg_match($pattern, $description, $matches);
+
+        if($matches) {
+            // Get the matching pattern, and left-pad it with zeroes
+            // Sometimes these show up as eg. 514 and sometimes 0514
+            $objectCode = str_pad($matches[1], 4, '0', STR_PAD_LEFT);
+        }
+
+        return $objectCode;
 
     }
 
