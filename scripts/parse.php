@@ -17,4 +17,27 @@ require_once dirname(__FILE__) . '/../vendor/autoload.php';
 // Go crazy!
 ini_set('memory_limit', '3200M');
 
-GoCSpending\DepartmentParser::parseAllDepartments();
+$configuration = [
+    'rawHtmlFolder' => dirname(__FILE__) . '/contracts/',
+
+    'jsonOutputFolder' => dirname(__FILE__) . '/generated-data/',
+
+    'departmentsToSkip' => [
+//        'agr',
+        'csa',
+        'fin',
+        'ic',
+        'infra',
+        'pwgsc',
+        'sc',
+        'tbs',
+        'acoa',
+        'pch',
+        'dnd',
+    ],
+
+    'limitDepartments' => 0,
+    'limitFiles' => 2,
+];
+
+GoCSpending\DepartmentParser::parseAllDepartments($configuration);

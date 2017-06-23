@@ -4,6 +4,7 @@ namespace GoCSpending;
 
 class DepartmentParser {
 
+    private $configuration;
     public $acronym;
     public $contracts;
 
@@ -29,19 +30,20 @@ class DepartmentParser {
         'amendedValues' => [],
     ];
 
-    function __construct($acronym) {
+    function __construct($configuration, $acronym) {
 
+        $this->configuration = $configuration;
         $this->acronym = $acronym;
 
     }
 
-    public static function getSourceDirectory($acronym = false) {
+    public static function getSourceDirectory($configuration, $acronym = false) {
 
         if($acronym) {
-            return dirname(__FILE__) . '/' . ParserConfiguration::$rawHtmlFolder . '/' . $acronym;
+            return $configuration['rawHtmlFolder']. '/' . $acronym;
         }
         else {
-            return dirname(__FILE__) . '/' . ParserConfiguration::$rawHtmlFolder;
+            return $configuration['rawHtmlFolder'];
         }
 
     }
@@ -69,9 +71,9 @@ class DepartmentParser {
 
     }
 
-    public function parseDepartment() {
+    public function parseDepartment($configuration) {
 
-        $sourceDirectory = self::getSourceDirectory($this->acronym);
+        $sourceDirectory = self::getSourceDirectory($configuration, $this->acronym);
 
         $validFiles = [];
         $files = array_diff(scandir($sourceDirectory), ['..', '.']);
@@ -86,14 +88,14 @@ class DepartmentParser {
 
         $filesParsed = 0;
         foreach($validFiles as $file) {
-            if(ParserConfiguration::$limitFiles && $filesParsed >= ParserConfiguration::$limitFiles) {
+            if($configuration['limitFiles'] && $filesParsed >= $configuration['limitFiles']) {
                 break;
             }
 
             // Retrieve the values from the department-specific file parser
             // And merge these with the default values
             // Just to guarantee that all the array keys are around:
-            $fileValues = array_merge(self::$rowParams, $this->parseFile($file));
+            $fileValues = array_merge(self::$rowParams, $this->parseFile($configuration, $file));
 
             if($fileValues) {
 
@@ -161,7 +163,7 @@ class DepartmentParser {
 
     }
 
-    public function parseFile($filename) {
+    public function parseFile($configuration, $filename) {
 
         $acronym = $this->acronym;
 
@@ -176,7 +178,7 @@ class DepartmentParser {
             echo 'Cannot find matching FileParser for ' . $acronym . "\n";
         }
 
-        $source = file_get_contents(self::getSourceDirectory($this->acronym) . '/' . $filename);
+        $source = file_get_contents(self::getSourceDirectory($configuration, $this->acronym) . '/' . $filename);
 
         $source = Helpers::initialSourceTransform($source, $acronym);
 
@@ -188,10 +190,10 @@ class DepartmentParser {
 
     }
 
-    public static function getDepartments() {
+    public static function getDepartments($configuration) {
 
         $output = [];
-        $sourceDirectory = self::getSourceDirectory();
+        $sourceDirectory = self::getSourceDirectory($configuration);
 
 
         $departments = array_diff(scandir($sourceDirectory), ['..', '.']);
@@ -199,7 +201,7 @@ class DepartmentParser {
         // Make sure that these are really directories
         // This could probably done with some more elegant array map function
         foreach($departments as $department) {
-            if(is_dir(dirname(__FILE__) . '/' . ParserConfiguration::$rawHtmlFolder . '/' . $department)) {
+            if(is_dir(dirname(__FILE__) . '/' . $configuration['rawHtmlFolder'] . '/' . $department)) {
                 $output[] = $department;
             }
         }
@@ -208,7 +210,7 @@ class DepartmentParser {
 
     }
 
-    public static function parseAllDepartments() {
+    public static function parseAllDepartments($configuration) {
 
         // Run the operation!
         $startTime = microtime(true);
@@ -216,32 +218,32 @@ class DepartmentParser {
         // Question of the day is... how big can PHP arrays get?
         $output = [];
 
-        $departments = DepartmentParser::getDepartments();
+        $departments = DepartmentParser::getDepartments($configuration);
 
         $departmentsParsed = 0;
         foreach($departments as $acronym) {
 
-            if(in_array($acronym, ParserConfiguration::$departmentsToSkip)) {
+            if(in_array($acronym, $configuration['departmentsToSkip'])) {
                 echo "Skipping " . $acronym . "\n";
                 continue;
             }
 
-            if(ParserConfiguration::$limitDepartments && $departmentsParsed >= ParserConfiguration::$limitDepartments) {
+            if($configuration['limitDepartments'] && $departmentsParsed >= $configuration['limitDepartments']) {
                 break;
             }
 
             $startDate = date('Y-m-d H:i:s');
             echo "Starting " . $acronym . " at ". $startDate . " \n";
 
-            $department = new DepartmentParser($acronym);
+            $department = new DepartmentParser($configuration, $acronym);
 
-            $department->parseDepartment();
+            $department->parseDepartment($configuration);
 
             // Rather than storing the whole works in memory,
             // let's just save one department at a time in individual
             // JSON files:
 
-            $directoryPath = dirname(__FILE__) . '/' . ParserConfiguration::$jsonOutputFolder . '/' . $acronym;
+            $directoryPath = dirname(__FILE__) . '/' . $configuration['jsonOutputFolder'] . '/' . $acronym;
 
             // If the folder doesn't exist yet, create it:
             // Thanks to http://stackoverflow.com/a/15075269/756641
