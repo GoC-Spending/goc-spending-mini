@@ -4,8 +4,8 @@
         "stil/xpath-selector": "~2.0"
     },
     "scripts": {
-        "scrape": "@php scrapers/contracts-scraper.php",
-        "parse": "@php scrapers/contracts-parser.php"
+        "scrape": "@php scripts/scrape.php",
+        "parse": "@php scripts/parse.php"
     },
     "autoload": {
         "psr-4": {
