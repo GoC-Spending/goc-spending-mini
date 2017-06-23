@@ -23,7 +23,7 @@ $configuration = [
     'jsonOutputFolder' => dirname(__FILE__) . '/generated-data/',
 
     'departmentsToSkip' => [
-//        'agr',
+        'agr',
         'csa',
         'fin',
         'ic',
@@ -33,7 +33,7 @@ $configuration = [
         'tbs',
         'acoa',
         'pch',
-        'dnd',
+//        'dnd',
         'cic',
         'ec',
         'esdc',
