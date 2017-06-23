@@ -47,7 +47,8 @@ class Configuration {
 	public static $redownloadExistingFiles = 1;
 
 	// Output director for the contract pages (sub-categorized by owner department acronym)
-	public static $outputFolder = 'contracts';
+	public static $outputFolder = '../scrapers/contracts';
+	public static $metadataOutputFolder = '../scrapers/contract-metadata';
 
 }
 
@@ -60,6 +61,9 @@ class DepartmentFetcher2 {
 	public $indexUrl;
 
 	public $activeQuarterPage;
+	public $activeFiscalYear;
+	public $activeFiscalQuarter;
+
 	public $totalContractsFetched = 0;
 
 
@@ -150,6 +154,18 @@ class DepartmentFetcher2 {
 
 				$quarterPage = $this->getPage($url);
 
+				// Clear it first just in case
+				$this->activeFiscalYear = '';
+				$this->activeFiscalQuarter = '';
+
+				if(method_exists($this, 'fiscalYearFromQuarterPage')) {
+					$this->activeFiscalYear = $this->fiscalYearFromQuarterPage($quarterPage);
+				}
+				if(method_exists($this, 'fiscalQuarterFromQuarterPage')) {
+					$this->activeFiscalQuarter = $this->fiscalQuarterFromQuarterPage($quarterPage);
+				}
+
+
 				$contractUrls = $this->getContractUrls($quarterPage);
 
 				foreach($contractUrls as $contractUrl) {
@@ -163,6 +179,7 @@ class DepartmentFetcher2 {
 					echo "   " . $contractUrl . "\n";
 
 					$this->downloadPage($contractUrl, $this->ownerAcronym);
+					$this->saveMetadata($contractUrl);
 
 					$this->totalContractsFetched++;
 					$contractsFetched++;
@@ -234,6 +251,11 @@ class DepartmentFetcher2 {
 		return $response->getBody();
 	}
 
+	public static function urlToFilename($url, $extension = '.html') {
+
+		return md5($url) . $extension;
+
+	}
 
 
 	// Generic page download function
@@ -244,7 +266,7 @@ class DepartmentFetcher2 {
 
 		$url = self::cleanupIncomingUrl($url);
 
-		$filename = md5($url) . '.html';
+		$filename = self::urlToFilename($url);
 		$directoryPath = dirname(__FILE__) . '/' . Configuration::$outputFolder;
 
 		if($subdirectory) {
@@ -311,6 +333,37 @@ class DepartmentFetcher2 {
 			return false;
 		}
 
+
+	}
+
+	public function saveMetadata($url) {
+
+		// Only save metadata if we have anything useful:
+		if(! $this->activeFiscalYear) {
+			return false;
+		}
+
+		$filename = self::urlToFilename($url, '.json');
+		$directoryPath = dirname(__FILE__) . '/' . Configuration::$metadataOutputFolder . '/' . $this->ownerAcronym;
+
+
+		// If the folder doesn't exist yet, create it:
+		// Thanks to http://stackoverflow.com/a/15075269/756641
+		if(! is_dir($directoryPath)) {
+		    mkdir($directoryPath, 0755, true);
+		}
+
+		$output = [
+			'url' => $url,
+			'fiscalYear' => intval($this->activeFiscalYear),
+			'fiscalQuarter' => intval($this->activeFiscalQuarter),
+		];
+
+		if(file_put_contents($directoryPath . '/' . $filename, json_encode($output, JSON_PRETTY_PRINT))) {
+			return true;
+		}
+
+		return false;
 
 	}
 
@@ -414,6 +467,45 @@ class RcmpFetcher extends DepartmentFetcher2 {
 	}
 
 	public $contractContentSubsetXpath = "//main";
+
+	public function fiscalYearFromQuarterPage($quarterHtml) {
+
+		// <h1 id="wb-cont" property="name" class="page-header mrgn-tp-md">2016-2017, 3rd quarter (1 October - 31 December 2016)</h1>
+		$year = '';
+
+		$xs = Selector::loadHTML($quarterHtml);
+		$text = $xs->find("//h1[@id='wb-cont']")->innerHTML();
+
+		$matches = [];
+		$pattern = '/([0-9]{4})/';
+
+		preg_match($pattern, $text, $matches);
+		if($matches) {
+			$year = $matches[1];
+		}
+
+		return $year;
+
+	}
+
+	public function fiscalQuarterFromQuarterPage($quarterHtml) {
+
+		$quarter = '';
+
+		$xs = Selector::loadHTML($quarterHtml);
+		$text = $xs->find("//h1[@id='wb-cont']")->innerHTML();
+
+		$matches = [];
+		$pattern = '/,\s([0-9])/';
+
+		preg_match($pattern, $text, $matches);
+		if($matches) {
+			$quarter = $matches[1];
+		}
+
+		return $quarter;
+
+	}
 
 }
 
