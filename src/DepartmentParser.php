@@ -48,6 +48,12 @@ class DepartmentParser {
 
     }
 
+    public static function getMetadataDirectory($configuration, $acronym) {
+
+        return $configuration['metadataFolder'] . $acronym;
+
+    }
+
 
 
     public static function cleanParsedArray(&$values) {
@@ -97,10 +103,14 @@ class DepartmentParser {
             // Just to guarantee that all the array keys are around:
             $fileValues = array_merge(self::$rowParams, $this->parseFile($configuration, $file));
 
+            $metadata = $this->getMetadata($configuration, $file);
+
             if($fileValues) {
 
                 self::cleanParsedArray($fileValues);
                 // var_dump($fileValues);
+
+                $fileValues = array_merge($fileValues, $metadata);
 
                 $fileValues['ownerAcronym'] = $this->acronym;
 
@@ -160,6 +170,28 @@ class DepartmentParser {
 
         }
         // var_dump($validFiles);
+
+    }
+
+    public function getMetadata($configuration, $htmlFilename) {
+
+        $filename = str_replace('.html', '.json', $htmlFilename);
+
+        $filepath = self::getMetadataDirectory($configuration, $this->acronym) . '/' . $filename;
+
+        if(file_exists($filepath)) {
+
+            $source = file_get_contents($filepath);
+            $metadata = json_decode($source, 1);
+
+            if(is_array($metadata)) {
+
+                return $metadata;
+            }
+
+        }
+
+        return [];
 
     }
 

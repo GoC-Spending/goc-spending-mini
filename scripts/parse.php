@@ -19,6 +19,8 @@ ini_set('memory_limit', '3200M');
 
 $configuration = [
     'rawHtmlFolder' => dirname(__FILE__) . '/contracts/',
+    
+    'metadataFolder' => dirname(__FILE__) . '/contract-metadata/',
 
     'jsonOutputFolder' => dirname(__FILE__) . '/generated-data/',
 
