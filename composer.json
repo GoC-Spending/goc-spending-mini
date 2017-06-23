@@ -8,7 +8,7 @@
         "parse": "@php scrapers/contracts-parser.php"
     },
     "autoload": {
-        "prs-4": {
+        "psr-4": {
             "GoCSpending\\": [
                 "src/"
             ],
