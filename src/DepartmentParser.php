@@ -201,7 +201,7 @@ class DepartmentParser {
         // Make sure that these are really directories
         // This could probably done with some more elegant array map function
         foreach($departments as $department) {
-            if(is_dir(dirname(__FILE__) . '/' . $configuration['rawHtmlFolder'] . '/' . $department)) {
+            if(is_dir($sourceDirectory . $department)) {
                 $output[] = $department;
             }
         }
@@ -243,7 +243,7 @@ class DepartmentParser {
             // let's just save one department at a time in individual
             // JSON files:
 
-            $directoryPath = dirname(__FILE__) . '/' . $configuration['jsonOutputFolder'] . '/' . $acronym;
+            $directoryPath = $configuration['jsonOutputFolder'] . $acronym;
 
             // If the folder doesn't exist yet, create it:
             // Thanks to http://stackoverflow.com/a/15075269/756641
