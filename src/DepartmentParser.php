@@ -167,11 +167,8 @@ class DepartmentParser {
 
         $acronym = $this->acronym;
 
-        $handlerExists = class_exists('GoCSpending\\DepartmentHandlers\\' . ucfirst($acronym) . 'Handler' );
-        $fileParserExists = method_exists('FileParser', $acronym);
-
-        if ( ! $fileParserExists && ! $handlerExists ) {
-            echo 'Cannot find matching DepartmentHandler or FileParser for ' . $acronym . "\n";
+        if ( ! class_exists('GoCSpending\\DepartmentHandlers\\' . ucfirst($acronym) . 'Handler' ) ) {
+            echo 'Cannot find matching DepartmentHandler for ' . $acronym . "; skipping parsing it.\n";
             return false;
         }
 
@@ -179,11 +176,7 @@ class DepartmentParser {
 
         $source = Helpers::initialSourceTransform($source, $acronym);
 
-        if ( $handlerExists ) {
-            return call_user_func( array( 'GoCSpending\\DepartmentHandlers\\' . ucfirst($acronym) . 'Handler', 'parse' ), $source );
-        } else {
-            return FileParser::$acronym($source);
-        }
+        return call_user_func( array( 'GoCSpending\\DepartmentHandlers\\' . ucfirst($acronym) . 'Handler', 'parse' ), $source );
 
     }
 
