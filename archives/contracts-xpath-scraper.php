@@ -47,8 +47,8 @@ class Configuration {
 	public static $redownloadExistingFiles = 1;
 
 	// Output director for the contract pages (sub-categorized by owner department acronym)
-	public static $outputFolder = '../scrapers/contracts';
-	public static $metadataOutputFolder = '../scrapers/contract-metadata';
+	public static $outputFolder = '../scripts/contracts';
+	public static $metadataOutputFolder = '../scripts/contract-metadata';
 
 }
 
@@ -354,9 +354,9 @@ class DepartmentFetcher2 {
 		}
 
 		$output = [
-			'url' => $url,
-			'fiscalYear' => intval($this->activeFiscalYear),
-			'fiscalQuarter' => intval($this->activeFiscalQuarter),
+			'sourceURL' => $url,
+			'sourceYear' => intval($this->activeFiscalYear),
+			'sourceQuarter' => intval($this->activeFiscalQuarter),
 		];
 
 		if(file_put_contents($directoryPath . '/' . $filename, json_encode($output, JSON_PRETTY_PRINT))) {
