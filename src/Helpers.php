@@ -3,17 +3,14 @@
 
 // toobs2017@gmail.com and the GoC-Spending team!
 
-// These aren't required in PHP 7+
-
 namespace GoCSpending;
 
-if(function_exists('mb_language')) {
-	mb_language('uni'); mb_internal_encoding('UTF-8');
-}
-
-// Note that the vendor directory is one level up
-require_once dirname(__FILE__) . '/../vendor/autoload.php';
 use XPathSelector\Selector;
+
+// These aren't required in PHP 7+
+if(function_exists('mb_language')) {
+    mb_language('uni'); mb_internal_encoding('UTF-8');
+}
 
 class Helpers {
 

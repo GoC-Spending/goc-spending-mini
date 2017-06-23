@@ -5,7 +5,12 @@ yarn.lock
 composer.phar
 vendor
 
-src/contracts
+archives/**/*.html
+archives/**/*.json
+
+scripts/**/*.html
+scripts/**/*.json
+
 /composer.lock
 
 /src/.DS_Store

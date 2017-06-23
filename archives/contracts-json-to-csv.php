@@ -9,7 +9,7 @@
 
 // toobs2017@gmail.com and the GoC-Spending team!
 
-require('contracts-helpers.php');
+require('Helpers.php');
 require('contracts-vendor-data.php');
 
 // Go crazy!

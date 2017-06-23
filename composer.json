@@ -9,7 +9,7 @@
     },
     "autoload": {
         "prs-4": {
-            "GoCSpending": [
+            "GoCSpending\\": [
                 "src/"
             ],
             "GoCSpending\\DepartmentHandlers\\": [
