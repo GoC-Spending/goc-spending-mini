@@ -170,12 +170,9 @@ class DepartmentParser {
         $handlerExists = class_exists('GoCSpending\\DepartmentHandlers\\' . ucfirst($acronym) . 'Handler' );
         $fileParserExists = method_exists('FileParser', $acronym);
 
-        if ( ! $handlerExists ) {
-            echo 'Cannot find matching DepartmentHandler for ' . $acronym . "\n";
-        }
-
-        if ( ! $fileParserExists ) {
-            echo 'Cannot find matching FileParser for ' . $acronym . "\n";
+        if ( ! $fileParserExists && ! $handlerExists ) {
+            echo 'Cannot find matching DepartmentHandler or FileParser for ' . $acronym . "\n";
+            return false;
         }
 
         $source = file_get_contents(self::getSourceDirectory($configuration, $this->acronym) . '/' . $filename);
