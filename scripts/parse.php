@@ -34,6 +34,10 @@ $configuration = [
         'acoa',
         'pch',
         'dnd',
+        'cic',
+        'ec',
+        'esdc',
+        'hc',
     ],
 
     'limitDepartments' => 0,
