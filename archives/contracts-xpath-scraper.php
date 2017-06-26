@@ -21,6 +21,7 @@
 require dirname(__FILE__) . '/../vendor/autoload.php';
 use GuzzleHttp\Client;
 use XPathSelector\Selector;
+use GoCSpending\Helpers;
 
 // These aren't required in PHP 7+
 if(function_exists('mb_language')) {
@@ -442,6 +443,20 @@ class CbsaFetcher extends DepartmentFetcher2 {
 		return $quarterUrls;
 	}
 
+	public function fiscalYearFromQuarterPage($quarterHtml) {
+
+		// <h1 id="wb-cont">ARCHIVED - 2015-2016, Q3 (October - December 2015)</h1>
+		return Helpers::xpathRegexComboSearch($quarterHtml, "//h1[@id='wb-cont']", '/([0-9]{4})/');
+
+	}
+
+	public function fiscalQuarterFromQuarterPage($quarterHtml) {
+
+		return Helpers::xpathRegexComboSearch($quarterHtml, "//h1[@id='wb-cont']", '/Q([0-9])/');
+
+	}
+
+
 }
 
 
@@ -471,39 +486,14 @@ class RcmpFetcher extends DepartmentFetcher2 {
 	public function fiscalYearFromQuarterPage($quarterHtml) {
 
 		// <h1 id="wb-cont" property="name" class="page-header mrgn-tp-md">2016-2017, 3rd quarter (1 October - 31 December 2016)</h1>
-		$year = '';
 
-		$xs = Selector::loadHTML($quarterHtml);
-		$text = $xs->find("//h1[@id='wb-cont']")->innerHTML();
-
-		$matches = [];
-		$pattern = '/([0-9]{4})/';
-
-		preg_match($pattern, $text, $matches);
-		if($matches) {
-			$year = $matches[1];
-		}
-
-		return $year;
+		return Helpers::xpathRegexComboSearch($quarterHtml, "//h1[@id='wb-cont']", '/([0-9]{4})/');
 
 	}
 
 	public function fiscalQuarterFromQuarterPage($quarterHtml) {
 
-		$quarter = '';
-
-		$xs = Selector::loadHTML($quarterHtml);
-		$text = $xs->find("//h1[@id='wb-cont']")->innerHTML();
-
-		$matches = [];
-		$pattern = '/,\s([0-9])/';
-
-		preg_match($pattern, $text, $matches);
-		if($matches) {
-			$quarter = $matches[1];
-		}
-
-		return $quarter;
+		return Helpers::xpathRegexComboSearch($quarterHtml, "//h1[@id='wb-cont']", '/,\s([0-9])/');
 
 	}
 
@@ -516,8 +506,8 @@ class RcmpFetcher extends DepartmentFetcher2 {
 // $inacFetcher->run();
 
 // Run the CBSA fetcher
-// $cbsaFetcher = new CbsaFetcher;
-// $cbsaFetcher->run();
+$cbsaFetcher = new CbsaFetcher;
+$cbsaFetcher->run();
 
 // Run the RCMP fetcher
 $rcmpFetcher = new RcmpFetcher;

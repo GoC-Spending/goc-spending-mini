@@ -475,6 +475,29 @@ class Helpers {
 
 	}
 
+	public static function xpathRegexComboSearch($html, $xpathQuery, $regexPattern = '') {
+
+		$output = '';
+
+		$xs = Selector::loadHTML($html);
+		$text = $xs->find($xpathQuery)->innerHTML();
+
+		if(! $regexPattern) {
+			return $text;
+		}
+
+		$matches = [];
+		$pattern = $regexPattern;
+
+		preg_match($pattern, $text, $matches);
+		if($matches) {
+			$output = $matches[1];
+		}
+
+		return $output;
+
+	}
+
 	// Just in case there are any changes we want to make to all contract HTML files before they're run through the parser script:
 	public static function initialSourceTransform($html, $acronym) {
 		
