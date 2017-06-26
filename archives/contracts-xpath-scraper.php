@@ -396,6 +396,19 @@ class InacFetcher extends DepartmentFetcher2 {
 
 	public $contractContentSubsetXpath = "//div[@class='center']";
 
+	public function fiscalYearFromQuarterPage($quarterHtml) {
+
+		// <title>Disclosure of Contracts - 2016-2017 - 3rd Quarter - Indigenous and Northern Affairs Canada</title>
+		return Helpers::xpathRegexComboSearch($quarterHtml, "//title", '/([0-9]{4})/');
+
+	}
+
+	public function fiscalQuarterFromQuarterPage($quarterHtml) {
+
+		return Helpers::xpathRegexComboSearch($quarterHtml, "//title", '/-\s([0-9])[a-z]/');
+
+	}
+
 }
 
 
@@ -502,16 +515,16 @@ class RcmpFetcher extends DepartmentFetcher2 {
 
 
 // Run the Indigenous and Northern Affairs scraper:
-// $inacFetcher = new InacFetcher;
-// $inacFetcher->run();
+$inacFetcher = new InacFetcher;
+$inacFetcher->run();
 
 // Run the CBSA fetcher
-$cbsaFetcher = new CbsaFetcher;
-$cbsaFetcher->run();
+// $cbsaFetcher = new CbsaFetcher;
+// $cbsaFetcher->run();
 
 // Run the RCMP fetcher
-$rcmpFetcher = new RcmpFetcher;
-$rcmpFetcher->run();
+// $rcmpFetcher = new RcmpFetcher;
+// $rcmpFetcher->run();
 
 exit();
 
